@@ -24,8 +24,8 @@ Arguments:
                 Case insensitive, the first title to match is taken.
     NEW_STATUS  Integer, number of the episode in the serie"
 
-PLAYER="see"
-PLAYER_ARGS="-f"
+PLAYER="mpv"
+PLAYER_ARGS="--fullscreen"
 DB_FILE="$HOME/.config/anime1/db"
 
 get_episode_urls() {
@@ -96,7 +96,11 @@ current_url() {
 see_anime() {
     title="$1"
 
-    "$PLAYER" $PLAYER_ARGS "$(current_url "$title")"
+    curl -s "$(current_url "$title")" \
+    | tr '"' '\n'                     \
+    | grep '\.mp4?'                   \
+    | tr '\n' '\0'                    \
+    | xargs -0 "$PLAYER" $PLAYER_ARGS
 
     current_status="$(get_status "$title")"
 
