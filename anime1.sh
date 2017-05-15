@@ -51,8 +51,11 @@ else
 fi
 
 get_episode_urls() {
-    title="$1"
-    base_url="$(get_base_url "$1")"
+    if grep -q "^https\?://" <<< "$1" ; then
+        base_url="$1"
+    else
+        base_url="$(get_base_url "$1")"
+    fi
 
     curl -s "$base_url" \
     | tr \'\" "\n\n"    \
@@ -65,7 +68,7 @@ get_base_url() {
     title="$1"
 
     grep "$title" "$DB_FILE" \
-    | cut -d ':' -f 3-
+    | cut -d ':' -f 4-
 }
 
 get_status() {
@@ -83,21 +86,20 @@ set_status() {
 }
 
 all_status() {
-    total="$(get_episode_urls | wc -l)"
+    format=$CYAN'\3'
+    format="$format$YELLOW"' ['$NONE'\1'$YELLOW'\/'$NONE'\2'$YELLOW']'
+    format="$format$YELLOW"' ('$GREEN'\4'$YELLOW')'$NONE
 
-    format=$CYAN'\2'
-    format="$format$YELLOW"' ['$NONE'\1'$YELLOW'\/'$NONE$total$YELLOW']'
-    format="$format$YELLOW"' ('$GREEN'\3'$YELLOW')'$NONE
-
-    sed 's/^\([0-9]\+\):\([^:]\+\):\(.*\)$/'"$format"'/' "$DB_FILE"
+    sed 's/^\([0-9]\+\):\([0-9]\+\):\([^:]\+\):\(.*\)$/'"$format"'/' "$DB_FILE"
 }
 
 add_anime() {
-    base_url="$1"
+    base_url="$(cut -d / -f -5 <<<"$1")"
     title="$(get_title "$base_url")"
+    total="$(get_total "$base_url")"
     status=0
 
-    echo "$status:$title:$base_url" >> "$DB_FILE"
+    echo "$status:$total:$title:$base_url" >> "$DB_FILE"
 }
 
 remove_anime() {
@@ -112,9 +114,16 @@ get_title() {
     echo "${url##*/}" | tr '-' ' '
 }
 
+get_total() {
+    base_url="$1"
+
+    get_episode_urls "$base_url" \
+    | wc -l
+}
+
 current_url() {
     title="$1"
-    base_url="$(grep "$title" "$DB_FILE" | head -1 | cut -d ':' -f 3-)"
+    base_url="$(grep "$title" "$DB_FILE" | head -1 | cut -d ':' -f 4-)"
     num="$(get_status "$title" | tr -d "/;\n")"
 
     get_episode_urls "$title" | sed -n "$((num + 1))p"
