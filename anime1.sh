@@ -28,6 +28,28 @@ PLAYER="mpv"
 PLAYER_ARGS="--fullscreen"
 DB_FILE="$HOME/.config/anime1/db"
 
+if [ -t 1 ] ; then
+    COLOR=true
+
+    NONE="$(echo -ne "\e[0m")"
+    RED="$(echo -ne "\e[31m")"
+    GREEN="$(echo -ne "\e[32m")"
+    YELLOW="$(echo -ne "\e[33m")"
+    BLUE="$(echo -ne "\e[34m")"
+    MAGENTA="$(echo -ne "\e[35m")"
+    CYAN="$(echo -ne "\e[36m")"
+else
+    COLOR=false
+
+    NONE=""
+    RED=""
+    GREEN=""
+    YELLOW=""
+    MAGENTA=""
+    BLUE=""
+    CYAN=""
+fi
+
 get_episode_urls() {
     title="$1"
     base_url="$(get_base_url "$1")"
@@ -62,7 +84,12 @@ set_status() {
 
 all_status() {
     total="$(get_episode_urls | wc -l)"
-    sed 's/^\([0-9]\+\):\([^:]\+\):\(.*\)$/\2 [\1\/'"$total"'] (\3)/' "$DB_FILE"
+
+    format=$CYAN'\2'
+    format="$format$YELLOW"' ['$NONE'\1'$YELLOW'\/'$NONE$total$YELLOW']'
+    format="$format$YELLOW"' ('$GREEN'\3'$YELLOW')'$NONE
+
+    sed 's/^\([0-9]\+\):\([^:]\+\):\(.*\)$/'"$format"'/' "$DB_FILE"
 }
 
 add_anime() {
