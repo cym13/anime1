@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 HELP="anime1 - watch animes without pain
@@ -174,7 +174,7 @@ case "$1" in
             exit 1
         fi
 
-        title="$(tr 'A-Z' 'a-z' <<<"$2")"
+        title="$(tr '[:upper:]' '[:lower:]' <<<"$2")"
         see_anime "$title"
     ;;
 
@@ -184,7 +184,7 @@ case "$1" in
             exit 1
         fi
 
-        title="$(tr 'A-Z' 'a-z' <<< "$2")"
+        title="$(tr '[:upper:]' '[:lower:]' <<< "$2")"
         remove_anime "$title"
     ;;
 
@@ -193,11 +193,11 @@ case "$1" in
             all_status
 
         elif [ -z "$3" ] ; then
-            title="$(tr 'A-Z' 'a-z' <<<"$2")"
+            title="$(tr '[:upper:]' '[:lower:]' <<<"$2")"
             get_status "$title"
 
         else
-            title="$(tr 'A-Z' 'a-z' <<<"$2")"
+            title="$(tr '[:upper:]' '[:lower:]' <<<"$2")"
             new_status="$3"
             set_status "$title" "$new_status"
         fi
