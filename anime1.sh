@@ -74,6 +74,8 @@ get_base_url() {
 get_status() {
     title="$1"
 
+    check_exists "$title" || fatal "No such anime"
+
     grep "$title" "$DB_FILE" \
     | cut -d ':' -f 1
 }
@@ -132,19 +134,32 @@ current_url() {
 see_anime() {
     title="$1"
 
+    check_exists "$title" || fatal "No such anime"
+
     curl -s "$(current_url "$title")" \
     | tr '"' '\n'                     \
     | grep '\.mp4?'                   \
     | tr '\n' '\0'                    \
-    | xargs -0 "$PLAYER" $PLAYER_ARGS
+    | xargs -0 "$PLAYER" $PLAYER_ARGS \
 
     current_status="$(get_status "$title")"
+    total="$(grep "$title" "$DB_FILE" | cut -d : -f 2)"
 
-    if [ "$current_status" -eq "$(get_episode_urls | wc -l)" ] ; then
+    if [ "$current_status" -ge "$total" ] ; then
         remove_anime "$title"
     fi
 
     set_status "$title" "$((current_status + 1))"
+}
+
+check_exists() {
+    title="$1"
+    grep -q "$title" "$DB_FILE"
+}
+
+fatal() {
+    echo "$@" >&2
+    exit 1
 }
 
 (
@@ -154,14 +169,13 @@ see_anime() {
 )
 
 if [ $# -eq 0 ] ; then
-    exec echo "$HELP"
+    fatal "$HELP"
 fi
 
 case "$1" in
     add)
         if [ -z "$2" ] ; then
-            echo "$HELP"
-            exit 1
+            fatal "$HELP"
         fi
 
         url="$2"
@@ -170,8 +184,7 @@ case "$1" in
 
     see)
         if [ -z "$2" ] ; then
-            echo "$HELP"
-            exit 1
+            fatal "$HELP"
         fi
 
         title="$(tr '[:upper:]' '[:lower:]' <<<"$2")"
@@ -180,8 +193,7 @@ case "$1" in
 
     remove)
         if [ -z "$2" ] ; then
-            echo "$HELP"
-            exit 1
+            fatal "$HELP"
         fi
 
         title="$(tr '[:upper:]' '[:lower:]' <<< "$2")"
@@ -208,7 +220,6 @@ case "$1" in
     ;;
 
     *)
-        echo "$HELP"
-        exit 1
+        fatal "$HELP"
     ;;
 esac
