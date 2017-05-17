@@ -29,24 +29,14 @@ PLAYER_ARGS="--fullscreen"
 DB_FILE="$HOME/.config/anime1/db"
 
 if [ -t 1 ] ; then
-    COLOR=true
-
     NONE="$(echo -ne "\e[0m")"
-    RED="$(echo -ne "\e[31m")"
     GREEN="$(echo -ne "\e[32m")"
     YELLOW="$(echo -ne "\e[33m")"
-    BLUE="$(echo -ne "\e[34m")"
-    MAGENTA="$(echo -ne "\e[35m")"
     CYAN="$(echo -ne "\e[36m")"
 else
-    COLOR=false
-
     NONE=""
-    RED=""
     GREEN=""
     YELLOW=""
-    MAGENTA=""
-    BLUE=""
     CYAN=""
 fi
 
