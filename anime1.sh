@@ -145,11 +145,13 @@ see_anime() {
     current_status="$(get_status "$title")"
     total="$(grep "$title" "$DB_FILE" | cut -d : -f 2)"
 
+    current_status="$((current_status + 1))"
+
     if [ "$current_status" -ge "$total" ] ; then
         remove_anime "$title"
     fi
 
-    set_status "$title" "$((current_status + 1))"
+    set_status "$title" "$current_status"
 }
 
 check_exists() {
