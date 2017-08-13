@@ -161,7 +161,8 @@ fatal() {
 )
 
 if [ $# -eq 0 ] ; then
-    fatal "$HELP"
+    all_status
+    exit 0
 fi
 
 case "$1" in
