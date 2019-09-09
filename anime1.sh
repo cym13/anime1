@@ -126,11 +126,17 @@ see_anime() {
 
     check_exists "$title" || fatal "No such anime"
 
-    curl -s "$(current_url "$title")" \
-    | tr '"' '\n'                     \
-    | grep '\.mp4?'                   \
-    | tr '\n' '\0'                    \
-    | xargs -0 "$PLAYER" $PLAYER_ARGS \
+    # Load balancing seems tricky for anime1, we often get 404 responses,
+    # retry as long as necessary
+    while !                               \
+        curl -s "$(current_url "$title")" \
+        | tr '"' '\n'                     \
+        | grep '\.mp4?'                   \
+        | tr '\n' '\0'                    \
+        | xargs -0 "$PLAYER" $PLAYER_ARGS
+    do
+        true
+    done
 
     current_status="$(get_status "$title")"
     total="$(grep "$title" "$DB_FILE" | cut -d : -f 2)"
