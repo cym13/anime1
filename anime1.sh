@@ -47,10 +47,10 @@ get_episode_urls() {
         base_url="$(get_base_url "$1")"
     fi
 
-    curl -s "$base_url" \
-    | tr \'\" "\n\n"    \
-    | grep watch        \
-    | grep -B 1 watched \
+    curl -s "$base_url/episode-1" \
+    | tr \'\" "\n\n"              \
+    | grep watch                  \
+    | grep -B 1 watched           \
     | grep '://'
 }
 
